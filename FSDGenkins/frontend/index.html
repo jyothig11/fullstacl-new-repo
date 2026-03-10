@@ -1,0 +1,17 @@
+<h1>Fullstack DevOps App</h1>
+
+<button onclick="load()">Get Data</button>
+
+<p id="data"></p>
+
+<script>
+
+function load(){
+fetch("http://BACKEND-IP:5000")
+.then(res=>res.text())
+.then(data=>{
+document.getElementById("data").innerText=data
+})
+}
+
+</script>
