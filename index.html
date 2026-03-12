@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 50%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, button { padding: 5px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+<h1>Users List</h1>
+
+<table id="usersTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h2>Add New User</h2>
+
+<form id="addUserForm">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button type="submit">Add User</button>
+</form>
+
+<script>
+
+const apiUrl = "http://98.86.103.174:5000/users";
+
+// Load users from backend
+async function loadUsers() {
+
+    const response = await fetch(apiUrl);
+    const users = await response.json();
+
+    const tbody = document.querySelector("#usersTable tbody");
+    tbody.innerHTML = "";
+
+    users.forEach(user => {
+
+        const row = `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+            </tr>
+        `;
+
+        tbody.innerHTML += row;
+    });
+
+}
+
+// Add user
+document.getElementById("addUserForm").addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    const response = await fetch(apiUrl, {
+
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: name,
+            email: email
+        })
+
+    });
+
+    const result = await response.json();
+
+    alert(result.message);
+
+    document.getElementById("addUserForm").reset();
+
+    loadUsers();
+
+});
+
+// Load users when page opens
+loadUsers();
+
+</script>
+
+</body>
+</html>
