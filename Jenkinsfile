@@ -14,7 +14,6 @@ pipeline {
             steps {
 
                 sh '''
-
 if [ ! -d "/home/ec2-user/app" ]; then
     git clone https://github.com/jyothig11/fullstacl-new-repo.git /home/ec2-user/app
 fi
@@ -32,7 +31,6 @@ pip install flask flask-cors pymysql
 sudo fuser -k 5000/tcp || true
 
 nohup python3 app.py > backend.log 2>&1 &
-
 '''
 
             }
