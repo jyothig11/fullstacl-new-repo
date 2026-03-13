@@ -17,29 +17,34 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
+
                 sshagent([SSH_CRED_ID]) {
 
                     sh """
-                    ssh -o StrictHostKeyChecking=no ec2-user@${DEPLOY_SERVER} << 'EOF'
+                    ssh -o StrictHostKeyChecking=no ec2-user@${DEPLOY_SERVER} << EOF
 
-                        cd /home/ec2-user/app || git clone https://github.com/jyothig11/fullstacl-new-repo.git /home/ec2-user/app
+                    if [ ! -d "/home/ec2-user/app" ]; then
+                        git clone https://github.com/jyothig11/fullstacl-new-repo.git /home/ec2-user/app
+                    fi
 
-                        cd /home/ec2-user/app
+                    cd /home/ec2-user/app
 
-                        git pull origin main
+                    git pull origin main
 
-                        python3 -m venv venv
-                        source venv/bin/activate
+                    python3 -m venv venv
 
-                        pip install flask flask-cors pymysql
+                    source venv/bin/activate
 
-                        sudo fuser -k 5000/tcp || true
+                    pip install flask flask-cors pymysql
 
-                        nohup python3 app.py > backend.log 2>&1 &
+                    sudo fuser -k 5000/tcp || true
+
+                    nohup python3 app.py > backend.log 2>&1 &
 
                     EOF
                     """
                 }
+
             }
         }
 
