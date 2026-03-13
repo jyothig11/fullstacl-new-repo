@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_SERVER = '98.86.103.174'
+        DEPLOY_SERVER = '127.0.0.1'
         SSH_CRED_ID = 'f4a0a4e2-a4c8-49bb-85a4-78fd06c177aa'
     }
 
