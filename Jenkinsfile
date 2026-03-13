@@ -4,11 +4,11 @@ pipeline {
  
     environment {
 
-        // Update with your server details
+        // Use your EC2 Public IP or Elastic IP
 
-        DEPLOY_SERVER = '98.86.103.174'
+        DEPLOY_SERVER = '98.86.103.174' 
 
-        SSH_CRED_ID = 'joesnewkey11.pem' // The ID you gave in Jenkins credentials
+        SSH_CRED_ID = 'joesnewkey11.pem' // The ID you created in Jenkins Credentials
 
     }
  
@@ -18,33 +18,15 @@ pipeline {
 
             steps {
 
+                // Pulls the latest code from your GitHub repository
+
                 checkout scm
 
             }
 
         }
  
-        stage('Backend Setup & Test') {
-
-            steps {
-
-                sh '''
-
-                    python3 -m venv venv
-
-                    source venv/bin/activate
-
-                    pip install -r requirements.txt
-
-                    # Add tests here if you have any
-
-                '''
-
-            }
-
-        }
- 
-        stage('Deploy to Server') {
+        stage('Deploy to EC2') {
 
             steps {
 
@@ -54,25 +36,35 @@ pipeline {
 
                         ssh -o StrictHostKeyChecking=no ubuntu@${DEPLOY_SERVER} << 'EOF'
 
+                            # Navigate to your app directory
+
+                            cd /home/ubuntu/app || git clone <YOUR_GITHUB_REPO_URL> /home/ubuntu/app
+
                             cd /home/ubuntu/app
+
+                            # Update to the latest code
 
                             git pull origin main
 
-                            # Restart Backend
+                            # Setup/Activate Virtual Environment
+
+                            python3 -m venv venv
 
                             source venv/bin/activate
 
-                            pip install -r requirements.txt
+                            pip install flask flask-cors pymysql
 
-                            pkill -f "python3 app.py" || true
+                            # CRITICAL: Kill the old process so the new one can start on port 5000
 
-                            nohup python3 app.py > backend.log 2>&1 &
+                            sudo fuser -k 5000/tcp || true
 
-                            # Update Frontend
+                            # Start the updated Flask app in the background
 
-                            # Assuming your HTML is served via Nginx/Apache
+                            nohup python3 app.py > nohup.out 2>&1 &
 
-                            sudo cp index\ -\ Copy.html /var/www/html/index.html
+                            # Update the Frontend file in the web server directory
+
+                            sudo cp "index - Copy.html" /var/www/html/index.html
 
                         EOF
 
