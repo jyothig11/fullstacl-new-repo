@@ -6,9 +6,9 @@ pipeline {
 
         // Update with your server details
 
-        DEPLOY_SERVER = 'your-server-ip'
+        DEPLOY_SERVER = '98.86.103.174'
 
-        SSH_CRED_ID = 'ssh-server-key' // The ID you gave in Jenkins credentials
+        SSH_CRED_ID = 'joesnewkey11.pem' // The ID you gave in Jenkins credentials
 
     }
  
