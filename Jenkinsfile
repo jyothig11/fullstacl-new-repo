@@ -1,37 +1,90 @@
 pipeline {
-    agent any
 
+    agent any
+ 
+    environment {
+
+        // Update with your server details
+
+        DEPLOY_SERVER = 'your-server-ip'
+
+        SSH_CRED_ID = 'ssh-server-key' // The ID you gave in Jenkins credentials
+
+    }
+ 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git 'https://github.com/jyothig11/fullstacl-new-repo.git'
-            }
-        }
+        stage('Checkout') {
 
-        stage('Install Dependencies') {
             steps {
-                sh 'pip3 install flask flask-cors pymysql'
-            }
-        }
 
-        stage('Deploy Backend') {
+                checkout scm
+
+            }
+
+        }
+ 
+        stage('Backend Setup & Test') {
+
             steps {
+
                 sh '''
-                pkill -f app.py || true
-                nohup python3 app.py > backend.log 2>&1 &
-                '''
-            }
-        }
 
-        stage('Deploy Frontend') {
-            steps {
-                sh '''
-                pkill -f http.server || true
-                nohup python3 -m http.server 9090 > frontend.log 2>&1 &
+                    python3 -m venv venv
+
+                    source venv/bin/activate
+
+                    pip install -r requirements.txt
+
+                    # Add tests here if you have any
+
                 '''
+
             }
+
+        }
+ 
+        stage('Deploy to Server') {
+
+            steps {
+
+                sshagent([SSH_CRED_ID]) {
+
+                    sh """
+
+                        ssh -o StrictHostKeyChecking=no ubuntu@${DEPLOY_SERVER} << 'EOF'
+
+                            cd /home/ubuntu/app
+
+                            git pull origin main
+
+                            # Restart Backend
+
+                            source venv/bin/activate
+
+                            pip install -r requirements.txt
+
+                            pkill -f "python3 app.py" || true
+
+                            nohup python3 app.py > backend.log 2>&1 &
+
+                            # Update Frontend
+
+                            # Assuming your HTML is served via Nginx/Apache
+
+                            sudo cp index\ -\ Copy.html /var/www/html/index.html
+
+                        EOF
+
+                    """
+
+                }
+
+            }
+
         }
 
     }
+
 }
+ 
