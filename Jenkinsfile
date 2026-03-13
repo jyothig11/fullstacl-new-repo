@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         DEPLOY_SERVER = '98.86.103.174'
-        SSH_CRED_ID = 'joesnewkey11'
+        SSH_CRED_ID = 'f4a0a4e2-a4c8-49bb-85a4-78fd06c177aa'
     }
 
     stages {
