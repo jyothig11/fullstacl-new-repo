@@ -14,11 +14,11 @@ pipeline {
             steps {
 
                 sh '''
-if [ ! -d "/home/ec2-user/app" ]; then
-    git clone https://github.com/jyothig11/fullstacl-new-repo.git /home/ec2-user/app
+if [ ! -d "/var/lib/jenkins/app" ]; then
+    git clone https://github.com/jyothig11/fullstacl-new-repo.git /var/lib/jenkins/app
 fi
 
-cd /home/ec2-user/app
+cd /var/lib/jenkins/app
 
 git pull origin main
 
